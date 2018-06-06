@@ -59,7 +59,8 @@ class AwsCodePipeline(BaseAgent):
                fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
             else:
                fromDateTime = lastUpdated
-        self.tracking["lastupdated"] = fromDateTime
+        self.tracking["lastupdated"] = fromDateTime 
+        # function
         if tracking_data!=[]:
             self.publishToolsData(tracking_data)
             self.updateTrackingJson(self.tracking)
