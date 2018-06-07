@@ -1,0 +1,47 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "ALM.DEFECT.config"
+  },
+  "publish": {
+    "data": "ALM.DEFECT.DATA",
+    "health": "ALM.DEFECT.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+    "Defect": {
+        "OpenedDate": "OpenedDate",
+        "ClosedDate": "ClosedDate",
+        "State": "Status",
+        "FormattedID": "DefectID",
+        "c_ReOpenedDefects": "ReOpenedDefects",
+        "LastUpdateDate": "LastUpdateDate",
+    "Owner": {
+        "_refObjectName": "Owner"
+        }
+     }
+  },
+  "runSchedule": 30,
+  "userid": "********",
+  "passwd": "********",
+  "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.0/",
+  "WarriorsRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Releases",
+  "startFrom": "2010-10-10 00:01",
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "useResponseTemplate" : true,
+  "timeStampField":"LastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "isDebugAllowed" : false,
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}
+
