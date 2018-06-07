@@ -8,12 +8,10 @@ import json, ast
 
 class AwsCodePipeline(BaseAgent):
     def process(self):
-        print "******"
         startFrom = self.config.get("StartFrom", '')
         startFrom = parser.parse(startFrom)
-        startFrom = startFrom.strftime('%Y-%m-%dT%H:%M:%S')
         pipeline = self.config.get("pipeline", '')
-        print pipeline
+        startFrom = startFrom.strftime('%Y-%m-%dT%H:%M:%S')
         since = self.tracking.get('lastupdated',None)
         if since == None:
             lastUpdated = startFrom
@@ -27,40 +25,37 @@ class AwsCodePipeline(BaseAgent):
         tracking_data = []
         injectData = {}
         for names in pipeline:
-            response = client.get_pipeline_state(
-                 name=names
+            response = client.list_pipeline_executions(
+                 pipelineName=names
                  )
-            print response
-            date = str(response['created'])
+            date = str(response['pipelineExecutionSummaries'][0]['startTime'])
             date = parser.parse(date)
             date = date.strftime('%Y-%m-%dT%H:%M:%S')
             pattern = '%Y-%m-%dT%H:%M:%S'
             date = int(time.mktime(time.strptime(date,pattern)))
-            print date
             if since == None or date > since:
-               injectData['pipelineName'] = str(response['pipelineName'])
-               injectData['JobName'] = str(response['stageStates'][2]['stageName'])
-               injectData['Status'] = str(response['stageStates'][1]['actionStates'][0]['latestExecution']['status'])
-               injectData['Summary'] = str(response['stageStates'][1]['actionStates'][0]['latestExecution']['summary'])
-               injectData['createTime'] = str(response['created'])
-               start = str(response['stageStates'][1]['actionStates'][0]['latestExecution']['lastStatusChange'])
-               start = parser.parse(start)
-               start_e = start.strftime('%Y-%m-%dT%H:%M:%S')
-               start_f = start.strftime('%Y-%m-%d')
-               injectData['lastStatusChange'] = start_f
-               pattern = '%Y-%m-%dT%H:%M:%S'
-               epoch = int(time.mktime(time.strptime(start_e,pattern)))
-               injectData['startTimeepoch'] = epoch
-               string = ast.literal_eval(json.dumps(injectData))
-               tracking_data.append(string)
-               seq = [x['createTime'] for x in tracking_data]
-               fromDateTime = max(seq)
-               fromDateTime = parser.parse(fromDateTime)
-               fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
+               for response in response['pipelineExecutionSummaries']:
+                   injectData['pipelineName'] = str(names)
+                   injectData['status'] = str(response['status'])
+                   injectData['jobId'] = str(response['pipelineExecutionId'])
+                   injectData['createTime'] = str(response['startTime'])
+                   start = str(response['startTime'])
+                   start = parser.parse(start)
+                   start_e = start.strftime('%Y-%m-%dT%H:%M:%S')
+                   start_f = start.strftime('%Y-%m-%d')
+                   injectData['startTime'] = start_f
+                   pattern = '%Y-%m-%dT%H:%M:%S'
+                   epoch = int(time.mktime(time.strptime(start_e,pattern)))
+                   injectData['startTimeepoch'] = epoch
+                   string = ast.literal_eval(json.dumps(injectData))
+                   tracking_data.append(string)
+                   seq = [x['createTime'] for x in tracking_data]
+                   fromDateTime = max(seq)
+                   fromDateTime = parser.parse(fromDateTime)
+                   fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
             else:
                fromDateTime = lastUpdated
-        self.tracking["lastupdated"] = fromDateTime 
-        # function
+        self.tracking["lastupdated"] = fromDateTime
         if tracking_data!=[]:
             self.publishToolsData(tracking_data)
             self.updateTrackingJson(self.tracking)
