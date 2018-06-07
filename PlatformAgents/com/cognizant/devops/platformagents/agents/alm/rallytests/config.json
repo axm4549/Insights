@@ -1,0 +1,38 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "ALM.QA.config"
+  },
+  "publish": {
+    "data": "ALM.QA.DATA",
+    "health": "ALM.QA.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+        "LastUpdateDate": "LastUpdateDate"
+  },
+  "runSchedule": 30,
+  "userid": "*********",
+  "passwd": "********",
+  "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.0/",
+  "warriors": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Iterations?pagesize=2000",
+  "incredibles": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/171761652296/Iterations?pagesize=2000",
+  "eagles": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/168592332524/Iterations?pagesize=2000",
+  "startFrom": "2010-10-10 00:01",
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "useResponseTemplate" : false,
+  "timeStampField":"LastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "isDebugAllowed" : false,
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}
