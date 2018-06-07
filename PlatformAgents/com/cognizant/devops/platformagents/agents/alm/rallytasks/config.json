@@ -1,0 +1,36 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "ALM.TASKS.config"
+  },
+  "publish": {
+    "data": "ALM.TASKS.DATA",
+    "health": "ALM.TASKS.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+        "LastUpdateDate": "LastUpdateDate"
+  },
+  "runSchedule": 30,
+  "userid": "***********",
+  "passwd": "*********",
+  "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.0/",
+  "WarriorsRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Releases",
+  "startFrom": "2010-10-10 00:01",
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "useResponseTemplate" : false,
+  "timeStampField":"LastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "isDebugAllowed" : false,
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}
