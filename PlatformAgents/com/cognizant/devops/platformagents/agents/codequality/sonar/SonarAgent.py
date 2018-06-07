@@ -21,20 +21,27 @@ Created on Jul 1, 2016
 from dateutil import parser
 from datetime import datetime
 from datetime import timedelta
+import json
+import requests
+from requests.auth import HTTPBasicAuth
 from com.cognizant.devops.platformagents.core.BaseAgent import BaseAgent
 
 class SonarAgent(BaseAgent):
     def process(self):
         baseUrl = self.config.get("baseUrl", '')
-        projectsUrl = baseUrl+"api/projects/index?format=json"
+        projectsUrl = baseUrl+"api/projects/index?format=json&pagesize=2000"
+        print projectsUrl
         startFrom = self.config.get("startFrom", '')
         startFrom = parser.parse(startFrom)
         timeStampFormat = self.config.get('timeStampFormat')
         startFrom = startFrom.strftime(timeStampFormat)
-        userId = self.config.get("userId", None)
-        password = self.config.get("password", None)
+        userId = self.config.get("UserId", '')
+        password = self.config.get("Password", '')
+        token = self.config.get("token", '')
         timeMachineapi = self.config.get("timeMachineapi", '')
-        sonarProjects = self.getResponse(projectsUrl, 'GET', userId, password, None)
+        #sonarProjects = self.getResponse(projectsUrl, 'GET', token, None)
+        sonarProjects = requests.get(projectsUrl, auth=(token, ''), verify=False)
+        sonarProjects = json.loads(sonarProjects.text)
         metrics = self.config.get('dynamicTemplate', {}).get("metrics", '')
         metricsParam = ''
         if len(metrics) > 0:
@@ -42,6 +49,7 @@ class SonarAgent(BaseAgent):
                 metricsParam += metric + ','
         data = []
         for project in sonarProjects:
+            data = []
             projectKey = project["k"]
             projectName = project["nm"]
             timestamp = self.tracking.get(projectKey, startFrom)
@@ -50,7 +58,10 @@ class SonarAgent(BaseAgent):
             else:
                 timestamp=timestamp.replace("+","%2B")
                 sonarExecutionsUrl = baseUrl+"api/measures/search_history?metrics="+metricsParam+"&component="+projectKey+"&from="+timestamp+"&format=json"
-            sonarExecutions = self.getResponse(sonarExecutionsUrl, 'GET', userId, password, None)
+                print sonarExecutionsUrl
+            #sonarExecutions = self.getResponse(sonarExecutionsUrl, 'GET', token, None)
+            sonarExecutions = requests.get(sonarExecutionsUrl, auth=(token, ''), verify=False)
+            sonarExecutions = json.loads(sonarExecutions.text)
             lastUpdatedDate = None
             if timeMachineapi =="yes":
                 for sonarExecution in sonarExecutions:
@@ -70,26 +81,26 @@ class SonarAgent(BaseAgent):
                         data.append(executionData)
                         lastUpdatedDate = executionData['metricdate']
             else:
-                for historydata in range(0,len(sonarExecutions['measures'][0]['history'])):
-                    executionData={}                              
-                    for i_metric_length in range(0,len(sonarExecutions['measures'])):                    
-                        if 'value' in sonarExecutions['measures'][i_metric_length]['history'][historydata]:
-                            executionData['resourcekey']=projectKey
-                            executionData["projectName"] = projectName
-                            executionData['metricdate']=sonarExecutions['measures'][i_metric_length]['history'][historydata]['date']
-                            executionData[sonarExecutions['measures'][i_metric_length]['metric']]=sonarExecutions['measures'][i_metric_length]['history'][historydata]['value']                                     
-                    data.append(executionData)            
-                    lastUpdatedDate = executionData['metricdate']                
+                var = len(sonarExecutions['measures'][0]['history'])-1
+                print var
+    #            for historydata in var:
+                executionData={}
+                for i_metric_length in range(0,len(sonarExecutions['measures'])):
+                    if 'value' in sonarExecutions['measures'][i_metric_length]['history'][var]:
+                        executionData['resourcekey']=projectKey
+                        executionData["projectName"] = projectName
+                        executionData['metricdate']=sonarExecutions['measures'][i_metric_length]['history'][var]['date']
+                        executionData[sonarExecutions['measures'][i_metric_length]['metric']]=sonarExecutions['measures'][i_metric_length]['history'][var]['value']
+                        lastUpdatedDate = executionData['metricdate']
+            data.append(executionData)
+                    #lastUpdatedDate = executionData['metricdate']
             if lastUpdatedDate:
                 lastUpdatedDate = lastUpdatedDate[:self.dateTimeLength]
                 dt = datetime.strptime(lastUpdatedDate, timeStampFormat)
                 fromDateTime = dt + timedelta(seconds=01)
                 fromDateTime = fromDateTime.strftime(timeStampFormat)
                 self.tracking[projectKey] = fromDateTime
-        self.publishToolsData(data)
-        self.updateTrackingJson(self.tracking)
+                self.publishToolsData(data)
+                self.updateTrackingJson(self.tracking)
 if __name__ == "__main__":
     SonarAgent()
-
-            
-            
