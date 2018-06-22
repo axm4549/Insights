@@ -32,72 +32,76 @@ class RallyTasks(BaseAgent):
         userid = self.config.get("userid", '')
         passwd = self.config.get("passwd", '')
         baseUrl = self.config.get("baseUrl", '')
-        releaseurl = self.config.get("WarriorsRelease", '')
+        warriors = self.config.get("WarriorsRelease", '')
+        incredibles = self.config.get("incredibles", '')
         startFrom = self.config.get("startFrom", '')
         startFrom = parser.parse(startFrom)
         startFrom = startFrom.strftime('%Y-%m-%dT%H:%M:%S')
         responseTemplate = self.getResponseTemplate()
-        release = self.getResponse(releaseurl, 'GET', userid, passwd, None)
-        for url in release["QueryResult"]["Results"]:
+        proj = [warriors,incredibles]
+        for projects in proj:
+            release = self.getResponse(projects, 'GET', userid, passwd, None)
             data = []
-            relname = str(url['_refObjectName'])
-            name="\""+quote(relname)+"\""
-            project = str(url['Project']['_refObjectName'])
-            since = self.tracking.get(relname,None)
-            if since == None:
-                lastUpdated = startFrom
-            else:
-                since = parser.parse(since)
-                since = since.strftime('%Y-%m-%d')
-                lastUpdated = since
-            urlappend_release_name="Release.Name = "+name
-            releaseName=urlappend_release_name
-            url = "https://rally1.rallydev.com/slm/webservice/v2.0/workspace/13785475169"+"&query=("+releaseName+")"
-            hierachiesUrl = baseUrl+"hierarchicalrequirement?workspace="+url+"&query=(LastUpdateDate>"+lastUpdated+")"
-            hierachies = self.getResponse(hierachiesUrl, 'GET', userid, passwd, None)
-            for hierarchy in hierachies["QueryResult"]["Results"]:
-                injectData = {}
-                reference = hierarchy['_ref']
-                ref = self.getResponse(reference, 'GET', userid, passwd, None)
-                if ref['HierarchicalRequirement']['Iteration']:
-                    iteration = ref['HierarchicalRequirement']['Iteration']['_ref']
-                    iter = self.getResponse(iteration, 'GET', userid, passwd, None)
-                    date = ref['HierarchicalRequirement']['LastUpdateDate']
-                    date = parser.parse(date)
-                    date = date.strftime('%Y-%m-%d')
-                    if since == None or date > since:
-                        injectData['LastUpdateDate'] = ref['HierarchicalRequirement']['LastUpdateDate']
-                        injectData['ReleaseName'] = relname
-                        injectData['userStory'] = ref['HierarchicalRequirement']['FormattedID']
-                        injectData['defects'] = ref['HierarchicalRequirement']['Defects']['Count']
-                        injectData['iteration'] = iter['Iteration']['Name']
-                        injectData['planEstimatePoints'] = ref['HierarchicalRequirement']['PlanEstimate']
-                        injectData['sprintStartDate'] = iter['Iteration']['StartDate']
-                        injectData['scheduleState'] = ref['HierarchicalRequirement']['ScheduleState']
-                        injectData['sprintEndDate'] = iter['Iteration']['EndDate']
-                        injectData['Project'] = project
-                        injectData['taskRemainingTotal'] = ref['HierarchicalRequirement']['TaskRemainingTotal']
-                        injectData['taskEstimateTotal'] = ref['HierarchicalRequirement']['TaskEstimateTotal']
-                        injectData['taskActualTotal'] = ref['HierarchicalRequirement']['TaskActualTotal']
-                        injectData['passingTestcase'] = ref['HierarchicalRequirement']['PassingTestCaseCount']
-                        injectData['TotalTasks'] = ref['HierarchicalRequirement']['Tasks']['Count']
-                        injectData['TotalTestCase'] = ref['HierarchicalRequirement']['TestCaseCount']
-                        injectData['Taskstatus'] = ref['HierarchicalRequirement']['TaskStatus']
-                        ChangedDate = ref['HierarchicalRequirement']['FlowStateChangedDate']
-                        ChangedDate = parser.parse(ChangedDate)
-                        ChangedDate = ChangedDate.strftime('%Y-%m-%d')
-                        injectData['FlowStateChangedDate'] = ChangedDate
-                       # data += self.parseResponse(responseTemplate, hierarchy, injectData)
-                        data.append(injectData)
-                        seq = [x['LastUpdateDate'] for x in data]
-                        fromDateTime = max(seq)
-                        fromDateTime = parser.parse(fromDateTime)
-                        fromDateTime = fromDateTime.strftime('%Y-%m-%d')
-                    else:
-                        fromDateTime = lastUpdated
-            if len(hierachies)>0:
-                self.tracking[relname] = fromDateTime
-                self.publishToolsData(data)
-                self.updateTrackingJson(self.tracking)
+            for url in release["QueryResult"]["Results"]:
+                relname = str(url['_refObjectName'])
+                name="\""+quote(relname)+"\""
+                project = str(url['Project']['_refObjectName'])
+                since = self.tracking.get(relname,None)
+                if since == None:
+                    lastUpdated = startFrom
+                else:
+                    since = parser.parse(since)
+                    since = since.strftime('%Y-%m-%dT%H:%M:%S')
+                    lastUpdated = since
+                urlappend_release_name="Release.Name = "+name
+                releaseName=urlappend_release_name
+                data = []
+                url = "https://rally1.rallydev.com/slm/webservice/v2.0/workspace/13785475169"+"&query=("+releaseName+")"
+                hierachiesUrl = baseUrl+"hierarchicalrequirement?workspace="+url+"&query=(LastUpdateDate>"+lastUpdated+")"+"&pagesize=2000"
+                hierachies = self.getResponse(hierachiesUrl, 'GET', userid, passwd, None)
+                for hierarchy in hierachies["QueryResult"]["Results"]:
+                    injectData = {}
+                    reference = hierarchy['_ref']
+                    ref = self.getResponse(reference, 'GET', userid, passwd, None)
+                    if ref['HierarchicalRequirement']['Iteration']:
+                        iteration = ref['HierarchicalRequirement']['Iteration']['_ref']
+                        iteration = iteration+"?pagesize=2000"
+                        iter = self.getResponse(iteration, 'GET', userid, passwd, None)
+                        date = ref['HierarchicalRequirement']['LastUpdateDate']
+                        date = parser.parse(date)
+                        date = date.strftime('%Y-%m-%dT%H:%M:%S')
+                        if since == None or date > since:
+                            injectData['LastUpdateDate'] = ref['HierarchicalRequirement']['LastUpdateDate']
+                            injectData['ReleaseName'] = relname
+                            injectData['userStory'] = ref['HierarchicalRequirement']['FormattedID']
+                            injectData['defects'] = ref['HierarchicalRequirement']['Defects']['Count']
+                            injectData['iteration'] = iter['Iteration']['Name']
+                            injectData['planEstimatePoints'] = ref['HierarchicalRequirement']['PlanEstimate']
+                            injectData['sprintStartDate'] = iter['Iteration']['StartDate']
+                            injectData['scheduleState'] = ref['HierarchicalRequirement']['ScheduleState']
+                            injectData['sprintEndDate'] = iter['Iteration']['EndDate']
+                            injectData['Project'] = project
+                            injectData['taskRemainingTotal'] = ref['HierarchicalRequirement']['TaskRemainingTotal']
+                            injectData['taskEstimateTotal'] = ref['HierarchicalRequirement']['TaskEstimateTotal']
+                            injectData['taskActualTotal'] = ref['HierarchicalRequirement']['TaskActualTotal']
+                            injectData['passingTestcase'] = ref['HierarchicalRequirement']['PassingTestCaseCount']
+                            injectData['TotalTasks'] = ref['HierarchicalRequirement']['Tasks']['Count']
+                            injectData['TotalTestCase'] = ref['HierarchicalRequirement']['TestCaseCount']
+                            injectData['Taskstatus'] = ref['HierarchicalRequirement']['TaskStatus']
+                            ChangedDate = ref['HierarchicalRequirement']['FlowStateChangedDate']
+                            ChangedDate = parser.parse(ChangedDate)
+                            ChangedDate = ChangedDate.strftime('%Y-%m-%d')
+                            injectData['FlowStateChangedDate'] = ChangedDate
+                            data.append(injectData)
+                            seq = [x['LastUpdateDate'] for x in data]
+                            fromDateTime = max(seq)
+                            fromDateTime = parser.parse(fromDateTime)
+                            fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
+                        else:
+                            fromDateTime = lastUpdated
+                        if len(hierachies)>0:
+                            self.tracking[relname] = fromDateTime
+                            self.publishToolsData(data)
+                            self.updateTrackingJson(self.tracking)
 if __name__ == "__main__":
     RallyTasks()
