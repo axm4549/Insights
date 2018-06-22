@@ -29,14 +29,15 @@
      }
   },
   "runSchedule": 30,
-  "userid": "********",
-  "passwd": "********",
+  "userid": "arpita.mathur@yum.com",
+  "passwd": "April@2018",
   "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.0/",
-  "WarriorsRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Releases",
+  "WarriorsRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Releases?pagesize=2000",
+  "incredibles": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/171761652296/Releases?pagesize=2000",
   "startFrom": "2010-10-10 00:01",
   "toolsTimeZone" : "Asia/Kolkata",
   "insightsTimeZone" : "Asia/Kolkata",
-  "useResponseTemplate" : true,
+  "useResponseTemplate" : false,
   "timeStampField":"LastUpdated",
   "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
   "isDebugAllowed" : false,
@@ -44,4 +45,3 @@
                 "logLevel" : "WARN"
         }
 }
-
