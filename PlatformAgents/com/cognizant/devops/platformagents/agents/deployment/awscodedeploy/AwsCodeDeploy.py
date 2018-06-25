@@ -17,17 +17,14 @@ class AwsCodeDeploy(BaseAgent):
         else:
             since = parser.parse(since)
             since = since.strftime('%Y-%m-%dT%H:%M:%S')
-            pattern = '%Y-%m-%dT%H:%M:%S'
-            since = int(time.mktime(time.strptime(since,pattern)))
+         #   pattern = '%Y-%m-%dT%H:%M:%S'
+         #   since = int(time.mktime(time.strptime(since,pattern)))
             lastUpdated = since
         client = boto3.client('codedeploy')
         getlist = []
         tracking_data =[]
         response = client.list_deployments()
         res = response.get('nextToken')
-        response = client.list_deployments(
-             nextToken=res
-             )
         getlist = [[str(deployments) for deployments in response['deployments']] for deployments in response]
         getlist = [item for items in getlist for item in items]
         deployId=list(set(getlist))
@@ -39,6 +36,7 @@ class AwsCodeDeploy(BaseAgent):
             deploymentId=n
             )
             date = str(deploy['deploymentInfo']['createTime'])
+            name = str(deploy['deploymentInfo']['applicationName'])
             date = parser.parse(date)
             date = date.strftime('%Y-%m-%dT%H:%M:%S')
            # pattern = '%Y-%m-%dT%H:%M:%S'
@@ -68,8 +66,8 @@ class AwsCodeDeploy(BaseAgent):
                 tracking_data.append(string)
                 seq = [x['completionTime'] for x in tracking_data]
                 fromDateTime = max(seq)
-               # fromDateTime = parser.parse(fromDateTime)
-               # fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
+                fromDateTime = parser.parse(fromDateTime)
+                fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
             else:
                 fromDateTime = lastUpdated
         self.tracking["lastupdated"] = fromDateTime
