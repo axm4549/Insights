@@ -26,12 +26,14 @@ from com.cognizant.devops.platformagents.core.BaseAgent import BaseAgent
 from urllib import quote
 import time
 import json,ast
+import json
+import requests
+from requests.auth import HTTPBasicAuth
 
 class RallyRun(BaseAgent):
     def process(self):
-        userid = self.config.get("userid", '')
-        passwd = self.config.get("passwd", '')
         baseUrl = self.config.get("baseUrl", '')
+        token = self.config.get("token", '')
         iteration = self.config.get("warriors", '')
         incredible = self.config.get("incredibles", '')
         eagle = self.config.get("eagles", '')
@@ -41,7 +43,8 @@ class RallyRun(BaseAgent):
         responseTemplate = self.getResponseTemplate()
         proj = [iteration,incredible,eagle]
         for hierarchy in proj:
-            Iter = self.getResponse(hierarchy, 'GET', userid, passwd, None)
+            Iter = requests.get(hierarchy, auth=(token, ''), verify=False)
+            Iter = json.loads(Iter.text)
             data = []
             for url in Iter["QueryResult"]["Results"]:
                 sdate = url['StartDate']
@@ -53,14 +56,16 @@ class RallyRun(BaseAgent):
                 set = url['WorkProducts']['_ref']
                 itername = url['Name']
                 set = set+"?pagesize=2000"
-                response = self.getResponse(set, 'GET', userid, passwd, None)
+                response = requests.get(set, auth=(token, ''), verify=False)
+                response = json.loads(response.text)
                 if len(response)>0:
                     for text in response["QueryResult"]["Results"]:
                         if text['TestCases']:
                             testcount = text['TestCases']['Count']
                             test = text['TestCases']['_ref']
                             test = test+"?pagesize=2000"
-                            testres = self.getResponse(test, 'GET', userid, passwd, None)
+                            testres = requests.get(test, auth=(token, ''), verify=False)
+                            testres = json.loads(testres.text)
                             if len(testres)>0:
                                 for res in testres["QueryResult"]["Results"]:
                                     data = []
