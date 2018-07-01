@@ -26,21 +26,26 @@ from com.cognizant.devops.platformagents.core.BaseAgent import BaseAgent
 from urllib import quote
 import time
 import json,ast
+import json
+import requests
+from requests.auth import HTTPBasicAuth
+
 
 class RallyTasks(BaseAgent):
     def process(self):
-        userid = self.config.get("userid", '')
-        passwd = self.config.get("passwd", '')
+        token = self.config.get("token", '')
         baseUrl = self.config.get("baseUrl", '')
         warriors = self.config.get("WarriorsRelease", '')
         incredibles = self.config.get("incredibles", '')
+        eagles = self.config.get("eagles", '')
         startFrom = self.config.get("startFrom", '')
         startFrom = parser.parse(startFrom)
         startFrom = startFrom.strftime('%Y-%m-%dT%H:%M:%S')
         responseTemplate = self.getResponseTemplate()
-        proj = [warriors,incredibles]
+        proj = [warriors,incredibles,eagles]
         for projects in proj:
-            release = self.getResponse(projects, 'GET', userid, passwd, None)
+            release = requests.get(projects, auth=(token, ''), verify=False)
+            release = json.loads(release.text)
             data = []
             for url in release["QueryResult"]["Results"]:
                 relname = str(url['_refObjectName'])
@@ -58,15 +63,18 @@ class RallyTasks(BaseAgent):
                 data = []
                 url = "https://rally1.rallydev.com/slm/webservice/v2.0/workspace/13785475169"+"&query=("+releaseName+")"
                 hierachiesUrl = baseUrl+"hierarchicalrequirement?workspace="+url+"&query=(LastUpdateDate>"+lastUpdated+")"+"&pagesize=2000"
-                hierachies = self.getResponse(hierachiesUrl, 'GET', userid, passwd, None)
+                hierachies = requests.get(hierachiesUrl, auth=(token, ''), verify=False)
+                hierachies = json.loads(hierachies.text)
                 for hierarchy in hierachies["QueryResult"]["Results"]:
                     injectData = {}
                     reference = hierarchy['_ref']
-                    ref = self.getResponse(reference, 'GET', userid, passwd, None)
+                    ref = requests.get(reference, auth=(token, ''), verify=False)
+                    ref = json.loads(ref.text)
                     if ref['HierarchicalRequirement']['Iteration']:
                         iteration = ref['HierarchicalRequirement']['Iteration']['_ref']
                         iteration = iteration+"?pagesize=2000"
-                        iter = self.getResponse(iteration, 'GET', userid, passwd, None)
+                        iter = requests.get(iteration, auth=(token, ''), verify=False)
+                        iter = json.loads(iter.text)
                         date = ref['HierarchicalRequirement']['LastUpdateDate']
                         date = parser.parse(date)
                         date = date.strftime('%Y-%m-%dT%H:%M:%S')
