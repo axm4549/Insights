@@ -8,7 +8,7 @@
     "host": "127.0.0.1",
     "password": "iSight",
     "user": "iSight",
-	"agentControlXchg":"iAgent"
+        "agentControlXchg":"iAgent"
   },
   "publish": {
     "data": "CODEQUALITY.SONAR.DATA",
@@ -19,20 +19,21 @@
   },
   "toolCategory" : "CODEQUALITY",
   "dynamicTemplate" : {
-  		"metrics" : ["alert_status", "complexity", "coverage", "new_coverage", "duplicated_blocks", "duplicated_files", "duplicated_line", "new_violations", "sqale_index", "sqale_debt_ratio", "new_sqale_debt_ratio"]
+                "metrics" : ["coverage"]
   },
   "toolName": "SONAR",
   "runSchedule": 30,
   "timeStampField": "metricdate",
   "UserId":"admin",
   "Password":"admin",
+  "token":"7fb4ee6b638eb403ddc9c007c3561f3304fa475f",
   "timeMachineapi": "no",
-  "timeStampFormat": "%Y-%m-%dT%H:%M:%S",
-  "startFrom": "2015-10-10 00:01:01",
+  "timeStampFormat": "%Y-%m-%d",
+  "startFrom": "2016-10-10",
   "toolsTimeZone": "Asia/Kolkata",
   "useResponseTemplate": false,
   "isDebugAllowed": false,
-  "baseUrl": "http://127.0.0.1:9000/sonar/",
+  "baseUrl": "https://sonar.devops.phbi-gdp.com/",
   "loggingSetting": {
     "logLevel": "WARN"
   }
