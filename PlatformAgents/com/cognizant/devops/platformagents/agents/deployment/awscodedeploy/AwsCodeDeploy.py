@@ -23,8 +23,10 @@ class AwsCodeDeploy(BaseAgent):
         client = boto3.client('codedeploy')
         getlist = []
         tracking_data =[]
+        date_list=[]
         response = client.list_deployments()
         res = response.get('nextToken')
+        response = client.list_deployments()
         getlist = [[str(deployments) for deployments in response['deployments']] for deployments in response]
         getlist = [item for items in getlist for item in items]
         deployId=list(set(getlist))
@@ -39,6 +41,7 @@ class AwsCodeDeploy(BaseAgent):
             name = str(deploy['deploymentInfo']['applicationName'])
             date = parser.parse(date)
             date = date.strftime('%Y-%m-%dT%H:%M:%S')
+            date_list.append(date)
            # pattern = '%Y-%m-%dT%H:%M:%S'
            # date = int(time.mktime(time.strptime(date,pattern)))
             if since == None or date > since:
@@ -64,12 +67,12 @@ class AwsCodeDeploy(BaseAgent):
                 injectData['lastUpdated'] = lastUpdated
                 string = ast.literal_eval(json.dumps(injectData))
                 tracking_data.append(string)
-                seq = [x['completionTime'] for x in tracking_data]
+                seq = [x['createTime'] for x in tracking_data]
                 fromDateTime = max(seq)
                 fromDateTime = parser.parse(fromDateTime)
                 fromDateTime = fromDateTime.strftime('%Y-%m-%dT%H:%M:%S')
             else:
-                fromDateTime = lastUpdated
+                fromDateTime = max(date_list)
         self.tracking["lastupdated"] = fromDateTime
         if tracking_data!=[]:
             self.publishToolsData(tracking_data)
