@@ -6,11 +6,11 @@
     "exchange": "iSight"
   },
   "subscribe": {
-    "config": "DEPLOY.AWSCODEDEPLOY.config"
+    "config": "DEPLOYMENT.AWSCODEDEPLOY.config"
   },
   "publish": {
-    "data": "DEPLOY.AWSCODEDEPLOY.DATA",
-    "health": "DEPLOY.AWSCODEDEPLOY.HEALTH"
+    "data": "DEPLOYMENT.AWSCODEDEPLOY.DATA",
+    "health": "DEPLOYMENT.AWSCODEDEPLOY.HEALTH"
   },
   "communication": {
     "type": "REST"
@@ -25,6 +25,7 @@
       }
   },
   "useResponseTemplate" : false,
+  "token" : "9e2fd73d01695e0e350670ebfff501cce61c2f56",
   "useAllBuildsApi" : false,
   "runSchedule": 15,
   "toolsTimeZone" : "Asia/Kolkata",
