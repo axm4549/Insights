@@ -30,7 +30,6 @@ class SonarAgent(BaseAgent):
     def process(self):
         baseUrl = self.config.get("baseUrl", '')
         projectsUrl = baseUrl+"api/projects/index?format=json&pagesize=2000"
-        print projectsUrl
         startFrom = self.config.get("startFrom", '')
         startFrom = parser.parse(startFrom)
         timeStampFormat = self.config.get('timeStampFormat')
@@ -58,7 +57,6 @@ class SonarAgent(BaseAgent):
             else:
                 timestamp=timestamp.replace("+","%2B")
                 sonarExecutionsUrl = baseUrl+"api/measures/search_history?metrics="+metricsParam+"&component="+projectKey+"&from="+timestamp+"&format=json"
-                print sonarExecutionsUrl
             #sonarExecutions = self.getResponse(sonarExecutionsUrl, 'GET', token, None)
             sonarExecutions = requests.get(sonarExecutionsUrl, auth=(token, ''), verify=False)
             sonarExecutions = json.loads(sonarExecutions.text)
@@ -82,7 +80,6 @@ class SonarAgent(BaseAgent):
                         lastUpdatedDate = executionData['metricdate']
             else:
                 var = len(sonarExecutions['measures'][0]['history'])-1
-                print var
     #            for historydata in var:
                 executionData={}
                 for i_metric_length in range(0,len(sonarExecutions['measures'])):
