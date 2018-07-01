@@ -1,0 +1,44 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "DEPLOYMENT.BUILDMASTER.config"
+  },
+  "publish": {
+    "data": "DEPLOYMENT.BUILDMASTER.DATA",
+    "health": "DEPLOYMENT.BUILDMASTER.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+    "deploymentInfo": {
+      "applicationName": "applicationName",
+      "status": "status",
+      "deploymentId": "deploymentId",
+      "createTime": "createTime",
+      "deploymentGroupName": "deploymentGroupName"
+      }
+  },
+  "useResponseTemplate" : false,
+  "token" : "9723386877",
+  "endpoint" : "https://qahutlink.yum.com/buildmaster/api/json/",
+  "appID" : ["67","68","69","70","71"],
+  "userid" : "mky3407",
+  "passwd" : "Krsna@4114",
+  "accesstoken" : "c3ZjX3BoaV93c2F1dGhxIDptYVM3VVR1VkFkcjMqRQ==",
+  "useAllBuildsApi" : false,
+  "runSchedule": 15,
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "timeStampField": "lastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "StartFrom" : "2010-10-10 00:01:00",
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}
