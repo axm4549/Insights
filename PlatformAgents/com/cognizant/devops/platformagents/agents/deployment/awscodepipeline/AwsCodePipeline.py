@@ -31,14 +31,14 @@ class AwsCodePipeline(BaseAgent):
             else:
                 since = parser.parse(since)
                 since = since.strftime('%Y-%m-%dT%H:%M:%S')
-                pattern = '%Y-%m-%dT%H:%M:%S'
-                since = int(time.mktime(time.strptime(since,pattern)))
+#                pattern = '%Y-%m-%dT%H:%M:%S'
+#                since = int(time.mktime(time.strptime(since,pattern)))
                 lastUpdated = since
             date = str(response['pipelineExecutionSummaries'][0]['lastUpdateTime'])
             date = parser.parse(date)
             date = date.strftime('%Y-%m-%dT%H:%M:%S')
-            pattern = '%Y-%m-%dT%H:%M:%S'
-            date = int(time.mktime(time.strptime(date,pattern)))
+ #           pattern = '%Y-%m-%dT%H:%M:%S'
+ #           date = int(time.mktime(time.strptime(date,pattern)))
             if since == None or date > since:
                for response in response['pipelineExecutionSummaries']:
                    injectData['pipelineName'] = value
