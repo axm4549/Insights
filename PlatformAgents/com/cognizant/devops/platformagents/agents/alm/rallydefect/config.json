@@ -1,0 +1,47 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "ALM.DEFECT.config"
+  },
+  "publish": {
+    "data": "ALM.DEFECT.DATA",
+    "health": "ALM.DEFECT.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+    "Defect": {
+        "OpenedDate": "OpenedDate",
+        "ClosedDate": "ClosedDate",
+        "State": "Status",
+        "FormattedID": "DefectID",
+        "c_ReOpenedDefects": "ReOpenedDefects",
+        "LastUpdateDate": "LastUpdateDate",
+    "Owner": {
+        "_refObjectName": "Owner"
+        }
+     }
+  },
+  "runSchedule": 30,
+  "token": "_SgouyYh7R6GcxmdoBIYQ5ssZNg4O9EKsreCxSvtIIY",
+  "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.0/",
+  "WarriorsRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/73860170768/Releases?pagesize=2000",
+  "incredibles": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/171761652296/Releases?pagesize=2000",
+  "EaglesRelease": "https://rally1.rallydev.com/slm/webservice/v2.0/Project/168592332524/Releases?pagesize=2000",
+  "startFrom": "2010-10-10 00:01",
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "useResponseTemplate" : false,
+  "timeStampField":"LastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "isDebugAllowed" : false,
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}

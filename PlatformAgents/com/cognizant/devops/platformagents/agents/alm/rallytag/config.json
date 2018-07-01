@@ -1,0 +1,47 @@
+{
+  "mqConfig": {
+    "user": "iSight",
+    "password": "iSight",
+    "host": "127.0.0.1",
+    "exchange": "iSight"
+  },
+  "subscribe": {
+    "config": "ALM.TAGS.config"
+  },
+  "publish": {
+    "data": "ALM.TAGS.DATA",
+    "health": "ALM.TAGS.HEALTH"
+  },
+  "communication": {
+    "type": "REST"
+  },
+  "responseTemplate": {
+    "Defect": {
+        "OpenedDate": "OpenedDate",
+        "ClosedDate": "ClosedDate",
+        "State": "Status",
+        "FormattedID": "DefectID",
+        "c_ReOpenedDefects": "ReOpenedDefects",
+        "LastUpdateDate": "LastUpdateDate",
+    "Owner": {
+        "_refObjectName": "Owner"
+        }
+     }
+  },
+  "runSchedule": 30,
+  "token": "_SgouyYh7R6GcxmdoBIYQ5ssZNg4O9EKsreCxSvtIIY",
+  "baseUrl": "https://rally1.rallydev.com/slm/webservice/v2.x/artifact",
+  "SST": "/tag/209366053032",
+  "DTAMS": "/tag/209874489176",
+  "FZ": "/tag/209875941440",
+  "startFrom": "2010-10-10 00:01",
+  "toolsTimeZone" : "Asia/Kolkata",
+  "insightsTimeZone" : "Asia/Kolkata",
+  "useResponseTemplate" : true,
+  "timeStampField":"LastUpdated",
+  "timeStampFormat":"%Y-%m-%dT%H:%M:%S",
+  "isDebugAllowed" : false,
+  "loggingSetting" : {
+                "logLevel" : "WARN"
+        }
+}
