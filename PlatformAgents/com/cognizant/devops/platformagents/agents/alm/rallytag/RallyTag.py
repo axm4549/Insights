@@ -26,12 +26,14 @@ from com.cognizant.devops.platformagents.core.BaseAgent import BaseAgent
 from urllib import quote
 import time
 import string
+import json
+import requests
+from requests.auth import HTTPBasicAuth
 
 class RallyTag(BaseAgent):
     def process(self):
-        userid = self.config.get("userid", '')
-        passwd = self.config.get("passwd", '')
         baseUrl = self.config.get("baseUrl", '')
+        token = self.config.get("token", '')
         sst = self.config.get("SST", '')
         dtams = self.config.get("DTAMS", '')
         fz = self.config.get("FZ", '')
@@ -44,7 +46,8 @@ class RallyTag(BaseAgent):
             tag = "\""+quote(response)+"\""
             url = baseUrl+"?types=hierarchicalrequirement,defect,defectsuite,testset&pagesize=20&query=(Tags CONTAINS "+tag+")&fetch=Release,DisplayColor,Project,ObjectID,Name,Tags,DragAndDropRank,FormattedID,ScheduleState,Blocked,Ready,ScheduleStatePrefix,Iteration,Owner,LastUpdateDate,VersionId&includePermissions=true&compact=true&workspace=/workspace/13785475169"
             data = []
-            hierachies = self.getResponse(url, 'GET', userid, passwd, None)
+            hierachies = requests.get(url, auth=(token, ''), verify=False)
+            hierachies = json.loads(hierachies.text)
             for hierarchy in hierachies["QueryResult"]["Results"]:
                 injectData = {}
                 data = []
@@ -52,39 +55,30 @@ class RallyTag(BaseAgent):
                 date = parser.parse(date)
                 date = date.strftime('%Y-%m-%dT%H:%M:%S')
                 userstory =  hierarchy['FormattedID']
-                since = self.tracking.get(userstory,None)
-                if since == None:
-                    lastUpdated = startFrom
+                injectData['userStory']=hierarchy['FormattedID']
+                injectData['scheduleState']=hierarchy['ScheduleState']
+                injectData['lastUpdate']=hierarchy['LastUpdateDate']
+                if 'Name' in hierarchy['Project']:
+                    injectData['Project']=hierarchy['Project']['Name']
+                if 'Name' in hierarchy['Release']:
+                    injectData['Release']=hierarchy['Release']['Name']
+                if 'Name' in hierarchy['Iteration']:
+                    injectData['Iteration']=hierarchy['Iteration']['Name']
+                length = len(hierarchy['Tags']['_tagsNameArray'])-1
+                if length == 0:
+                    val=hierarchy['Tags']['_tagsNameArray'][0]['Name']
+                    string=val.split(" ")
+                    val=string[0]
+                    injectData[val]=hierarchy['Tags']['_tagsNameArray'][0]['Name']
                 else:
-                    since = parser.parse(since)
-                    since = since.strftime('%Y-%m-%dT%H:%M:%S')
-                    lastUpdated = since
-                if since == None or date > since:
-                    injectData['userStory']=hierarchy['FormattedID']
-                    injectData['lastUpdate']=hierarchy['LastUpdateDate']
-                    if 'Name' in hierarchy['Project']:
-                        injectData['Project']=hierarchy['Project']['Name']
-                    if 'Name' in hierarchy['Release']:
-                        injectData['Release']=hierarchy['Release']['Name']
-                    if 'Name' in hierarchy['Iteration']:
-                        injectData['Iteration']=hierarchy['Iteration']['Name']
-                    length = len(hierarchy['Tags']['_tagsNameArray'])-1
-                    if length == 0:
-                        val=hierarchy['Tags']['_tagsNameArray'][0]['Name']
+                    for i in range(0,length):
+                        val=hierarchy['Tags']['_tagsNameArray'][i]['Name']
                         string=val.split(" ")
                         val=string[0]
-                        injectData[val]=hierarchy['Tags']['_tagsNameArray'][0]['Name']
-                    else:
-                        for i in range(0,length):
-                            val=hierarchy['Tags']['_tagsNameArray'][i]['Name']
-                            string=val.split(" ")
-                            val=string[0]
-                            injectData[val]=hierarchy['Tags']['_tagsNameArray'][i]['Name']
-                    data.append(injectData)
-                    date = hierarchy['LastUpdateDate']
-                    fromDateTime = date
-                else:
-                    fromDateTime = lastUpdated
+                        injectData[val]=hierarchy['Tags']['_tagsNameArray'][i]['Name']
+                data.append(injectData)
+                date = hierarchy['LastUpdateDate']
+                fromDateTime = date
                 if data!=[]:
                     self.tracking[userstory] = fromDateTime
                     self.publishToolsData(data)
